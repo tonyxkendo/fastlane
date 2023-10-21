@@ -7,9 +7,9 @@ module Scan
       parts = prefix
       parts << Scan.config[:xcodebuild_command]
       parts += options
-      parts += actions
-      parts += suffix
-      parts += pipe
+      # parts += actions
+      # parts += suffix
+      # parts += pipe
 
       parts
     end
@@ -43,55 +43,61 @@ module Scan
       config = Scan.config
 
       options = []
-      options << "ARCHS=x86_64" 
-      options += project_path_array unless config[:xctestrun]
-      options << "-sdk '#{config[:sdk]}'" if config[:sdk]
-      options << destination if destination # generated in `detect_values`
-      options << "-toolchain '#{config[:toolchain]}'" if config[:toolchain]
-      if config[:derived_data_path] && !options.include?("-derivedDataPath #{config[:derived_data_path].shellescape}")
-        options << "-derivedDataPath #{config[:derived_data_path].shellescape}"
-      end
-      if config[:use_system_scm] && !options.include?("-scmProvider system")
-        options << "-scmProvider system"
-      end
-      if config[:result_bundle_path]
-        options << "-resultBundlePath '#{config[:result_bundle_path].shellescape}'"
-        Scan.cache[:result_bundle_path] = config[:result_bundle_path]
-      elsif config[:result_bundle]
-        options << "-resultBundlePath '#{result_bundle_path(true)}'"
-      end
-      if FastlaneCore::Helper.xcode_at_least?(10)
-        options << "-parallel-testing-enabled #{config[:parallel_testing] ? 'YES' : 'NO'}" unless config[:parallel_testing].nil?
-        options << "-parallel-testing-worker-count #{config[:concurrent_workers]}" if config[:concurrent_workers]
-        options << "-maximum-concurrent-test-simulator-destinations #{config[:max_concurrent_simulators]}" if config[:max_concurrent_simulators]
-        options << "-disable-concurrent-testing" if config[:disable_concurrent_testing]
-      end
-      options << "-enableCodeCoverage #{config[:code_coverage] ? 'YES' : 'NO'}" unless config[:code_coverage].nil?
-      options << "-enableAddressSanitizer #{config[:address_sanitizer] ? 'YES' : 'NO'}" unless config[:address_sanitizer].nil?
-      options << "-enableThreadSanitizer #{config[:thread_sanitizer] ? 'YES' : 'NO'}" unless config[:thread_sanitizer].nil?
-      if FastlaneCore::Helper.xcode_at_least?(11)
-        options << "-testPlan '#{config[:testplan]}'" if config[:testplan]
+      options << "xcodebuild  \
+      -workspace TrueID.xcworkspace \
+      -scheme DiscoverContainer \
+      -sdk iphonesimulator \
+      -destination 'platform=iOS Simulator,arch=x86_64' \
+    clean build \
+      test" 
+      # options += project_path_array unless config[:xctestrun]
+      # options << "-sdk '#{config[:sdk]}'" if config[:sdk]
+      # options << destination if destination # generated in `detect_values`
+      # options << "-toolchain '#{config[:toolchain]}'" if config[:toolchain]
+      # if config[:derived_data_path] && !options.include?("-derivedDataPath #{config[:derived_data_path].shellescape}")
+      #   options << "-derivedDataPath #{config[:derived_data_path].shellescape}"
+      # end
+      # if config[:use_system_scm] && !options.include?("-scmProvider system")
+      #   options << "-scmProvider system"
+      # end
+      # if config[:result_bundle_path]
+      #   options << "-resultBundlePath '#{config[:result_bundle_path].shellescape}'"
+      #   Scan.cache[:result_bundle_path] = config[:result_bundle_path]
+      # elsif config[:result_bundle]
+      #   options << "-resultBundlePath '#{result_bundle_path(true)}'"
+      # end
+      # if FastlaneCore::Helper.xcode_at_least?(10)
+      #   options << "-parallel-testing-enabled #{config[:parallel_testing] ? 'YES' : 'NO'}" unless config[:parallel_testing].nil?
+      #   options << "-parallel-testing-worker-count #{config[:concurrent_workers]}" if config[:concurrent_workers]
+      #   options << "-maximum-concurrent-test-simulator-destinations #{config[:max_concurrent_simulators]}" if config[:max_concurrent_simulators]
+      #   options << "-disable-concurrent-testing" if config[:disable_concurrent_testing]
+      # end
+      # options << "-enableCodeCoverage #{config[:code_coverage] ? 'YES' : 'NO'}" unless config[:code_coverage].nil?
+      # options << "-enableAddressSanitizer #{config[:address_sanitizer] ? 'YES' : 'NO'}" unless config[:address_sanitizer].nil?
+      # options << "-enableThreadSanitizer #{config[:thread_sanitizer] ? 'YES' : 'NO'}" unless config[:thread_sanitizer].nil?
+      # if FastlaneCore::Helper.xcode_at_least?(11)
+      #   options << "-testPlan '#{config[:testplan]}'" if config[:testplan]
 
-        # detect_values will ensure that these values are present as Arrays if
-        # they are present at all
-        options += config[:only_test_configurations].map { |name| "-only-test-configuration '#{name}'" } if config[:only_test_configurations]
-        options += config[:skip_test_configurations].map { |name| "-skip-test-configuration '#{name}'" } if config[:skip_test_configurations]
-      end
-      options << "-xctestrun '#{config[:xctestrun]}'" if config[:xctestrun]
-      options << config[:xcargs] if config[:xcargs]
+      #   # detect_values will ensure that these values are present as Arrays if
+      #   # they are present at all
+      #   options += config[:only_test_configurations].map { |name| "-only-test-configuration '#{name}'" } if config[:only_test_configurations]
+      #   options += config[:skip_test_configurations].map { |name| "-skip-test-configuration '#{name}'" } if config[:skip_test_configurations]
+      # end
+      # options << "-xctestrun '#{config[:xctestrun]}'" if config[:xctestrun]
+      # options << config[:xcargs] if config[:xcargs]
 
-      # Number of retries does not equal xcodebuild's -test-iterations number
-      # It needs include 1 iteration by default
-      number_of_retries = config[:number_of_retries] + 1
-      if number_of_retries > 1 && FastlaneCore::Helper.xcode_at_least?(13)
-        options << "-retry-tests-on-failure"
-        options << "-test-iterations #{number_of_retries}"
-      end
+      # # Number of retries does not equal xcodebuild's -test-iterations number
+      # # It needs include 1 iteration by default
+      # number_of_retries = config[:number_of_retries] + 1
+      # if number_of_retries > 1 && FastlaneCore::Helper.xcode_at_least?(13)
+      #   options << "-retry-tests-on-failure"
+      #   options << "-test-iterations #{number_of_retries}"
+      # end
 
-      # detect_values will ensure that these values are present as Arrays if
-      # they are present at all
-      options += config[:only_testing].map { |test_id| "-only-testing:#{test_id.shellescape}" } if config[:only_testing]
-      options += config[:skip_testing].map { |test_id| "-skip-testing:#{test_id.shellescape}" } if config[:skip_testing]
+      # # detect_values will ensure that these values are present as Arrays if
+      # # they are present at all
+      # options += config[:only_testing].map { |test_id| "-only-testing:#{test_id.shellescape}" } if config[:only_testing]
+      # options += config[:skip_testing].map { |test_id| "-skip-testing:#{test_id.shellescape}" } if config[:skip_testing]
 
       options
     end
