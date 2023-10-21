@@ -45,7 +45,7 @@ module Scan
       options = []
       options << "ARCHS=x86_64"
       options += project_path_array unless config[:xctestrun]
-      options << "-sdk iphonesimulator -destination 'platform=iOS Simulator,arch=x86_64' clean build test"
+      options << "-sdk iphonesimulator -destination 'platform=iOS Simulator,OS=17,arch=x86_64' clean build test"
 
       # options << "-sdk '#{config[:sdk]}'" if config[:sdk]
       # options << destination if destination # generated in `detect_values`
