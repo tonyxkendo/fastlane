@@ -43,14 +43,13 @@ module Scan
       config = Scan.config
 
       options = []
-      options << "xcodebuild  \
-      -workspace TrueID.xcworkspace \
-      -scheme DiscoverContainer \
-      -sdk iphonesimulator \
+      
+      options += project_path_array unless config[:xctestrun]
+      options << "-sdk iphonesimulator \
       -destination 'platform=iOS Simulator,arch=x86_64' \
     clean build \
-      test" 
-      # options += project_path_array unless config[:xctestrun]
+      test"
+      
       # options << "-sdk '#{config[:sdk]}'" if config[:sdk]
       # options << destination if destination # generated in `detect_values`
       # options << "-toolchain '#{config[:toolchain]}'" if config[:toolchain]
