@@ -233,7 +233,8 @@ module Scan
           arch = ",arch=x86_64"
         end
 
-        Scan.config[:destination] = Scan.devices.map { |d| "platform=#{d.os_type} Simulator,id=#{d.udid}" + arch }
+        # Scan.config[:destination] = Scan.devices.map { |d| "platform=#{d.os_type} Simulator,id=#{d.udid}" + arch }
+        Scan.config[:destination] = Scan.devices.map { |d| "platform=iOS Simulator,arch=x86_64"}
       elsif Scan.project && Scan.project.mac_app?
         Scan.config[:destination] = min_xcode8? ? ["platform=macOS"] : ["platform=OS X"]
       end
