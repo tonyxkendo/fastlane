@@ -5,7 +5,7 @@ module Scan
   class TestCommandGenerator
     def generate
       parts = prefix
-      parts += "SDKROOT=/Applications/Xcode15.app/Contents/Developer"
+      parts << "SDKROOT=/Applications/Xcode15.app/Contents/Developer"
       parts << Scan.config[:xcodebuild_command]
       parts += options
       # parts += actions
