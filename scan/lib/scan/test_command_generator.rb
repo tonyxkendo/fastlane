@@ -43,6 +43,7 @@ module Scan
       config = Scan.config
 
       options = []
+      options << "ARCHS=x86_64" 
       options += project_path_array unless config[:xctestrun]
       options << "-sdk '#{config[:sdk]}'" if config[:sdk]
       options << destination if destination # generated in `detect_values`
