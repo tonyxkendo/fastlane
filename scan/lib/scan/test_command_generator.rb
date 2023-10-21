@@ -5,7 +5,7 @@ module Scan
   class TestCommandGenerator
     def generate
       # parts = prefix
-      parts << "SDKROOT=/Applications/Xcode15.app/Contents/Developer \
+      parts = "SDKROOT=/Applications/Xcode15.app/Contents/Developer \
       xcodebuild ARCHS=x86_64 \
        -workspace TrueID.xcworkspace \
        -scheme DiscoverContainer \
