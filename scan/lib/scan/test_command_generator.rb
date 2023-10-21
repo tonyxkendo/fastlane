@@ -4,10 +4,16 @@ module Scan
   # Responsible for building the fully working xcodebuild command
   class TestCommandGenerator
     def generate
-      parts = prefix
-      parts << "SDKROOT=/Applications/Xcode15.app/Contents/Developer"
-      parts << Scan.config[:xcodebuild_command]
-      parts += options
+      # parts = prefix
+      parts << "SDKROOT=/Applications/Xcode15.app/Contents/Developer \
+      xcodebuild ARCHS=x86_64 \
+       -workspace TrueID.xcworkspace \
+       -scheme DiscoverContainer \
+       -sdk iphonesimulator \
+       -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.0,arch=x86_64' \
+       clean build test"
+      # parts << Scan.config[:xcodebuild_command]
+      # parts += options
       # parts += actions
       # parts += suffix
       # parts += pipe
